@@ -29,15 +29,22 @@ function Board({ xIsNext, squares, onPlay }) {
     status = "Next player: " + (xIsNext ? "X" : "O");
   }
 
-  const board = new Array();
-  for (let i = 0; i < 3; i++) {
-    const line = new Array();
-    for (let j = 0; j < 3; j++) {
-      const k = i * 3 + j;
-      line.push(<Square key={k} value={squares[k]} onSquareClick={() => handleClick(k)} />);
-    }
-    board.push(<div key={i} className="board-row">{line}</div>);
-  }
+  const board = Array.from(Array(3), (_, i) => (
+    <div key={i} className="board-row">
+      {
+        Array.from(Array(3), (_, j) => {
+          const k = i * 3 + j;
+          return (
+            <Square
+              key={k}
+              value={squares[k]}
+              onSquareClick={() => handleClick(k)}
+            />
+          );
+        })
+      }
+    </div>
+  ));
 
   return (
     <>
