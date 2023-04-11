@@ -54,9 +54,19 @@ function Board({ xIsNext, squares, onPlay }) {
   );
 }
 
+function Order({ orderIsDesc, onChangeOrder }) {
+  const order = orderIsDesc ? "descending" : "ascending";
+  return (
+    <div>
+      order: <button onClick={onChangeOrder}>{order}</button>
+    </div>
+  )
+}
+
 export default function Game() {
   const [history, setHistory] = useState([Array(9).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0);
+  const [moveOrderIsDesc, setMoveOrderIsDesc] = useState(false);
   const xIsNext = currentMove % 2 === 0;
   const currentSquares = history[currentMove];
 
@@ -64,6 +74,10 @@ export default function Game() {
     const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
     setHistory(nextHistory);
     setCurrentMove(nextHistory.length - 1);
+  }
+
+  function handlerChangeOrder() {
+    setMoveOrderIsDesc(!moveOrderIsDesc);
   }
 
   function jumpTo(nextMove) {
@@ -99,7 +113,8 @@ export default function Game() {
         <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
       </div>
       <div className="game-info">
-        <ol>{moves}</ol>
+        <Order orderIsDesc={moveOrderIsDesc} onChangeOrder={handlerChangeOrder} />
+        <ol>{moveOrderIsDesc ? moves.reverse() : moves}</ol>
       </div>
     </div>
   );
