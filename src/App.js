@@ -92,7 +92,10 @@ export default function Game() {
   const moves = history.map((squares, move) => {
     let description;
     if (move > 0) {
-      description = "Go to move #" + move;
+      const movePosition = squares.findIndex(
+        (s1, i) => s1 && s1 != history[move - 1][i]
+      );
+      description = `Go to move #${move}: (${Math.floor(movePosition / 3) + 1}, ${movePosition % 3 + 1})`;
     } else {
       description = "Go to game start";
     }
