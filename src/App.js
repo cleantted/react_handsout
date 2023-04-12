@@ -1,14 +1,17 @@
 import { useState } from 'react';
 
-function Square({ value, onSquareClick }) {
+function Square({ value, onSquareClick, isHighlight }) {
+  let className = isHighlight ? "square highlight" : "square";
   return (
-    <button className="square" onClick={onSquareClick}>{value}</button>
+    <button className={className} onClick={onSquareClick}>{value}</button>
   );
 }
 
 function Board({ xIsNext, squares, onPlay }) {
+  const [winner, checkedSquares] = calculateWinner(squares);
+
   function handleClick(i) {
-    if (squares[i] || calculateWinner(squares)) {
+    if (squares[i] || winner) {
       return;
     }
 
@@ -21,10 +24,11 @@ function Board({ xIsNext, squares, onPlay }) {
     onPlay(nextSquares)
   }
 
-  const winner = calculateWinner(squares);
   let status;
   if (winner) {
     status = "Winner: " + winner;
+  } else if (squares.every((s) => s)) {
+    status = "Draw."
   } else {
     status = "Next player: " + (xIsNext ? "X" : "O");
   }
@@ -39,6 +43,7 @@ function Board({ xIsNext, squares, onPlay }) {
               key={k}
               value={squares[k]}
               onSquareClick={() => handleClick(k)}
+              isHighlight={checkedSquares[k]}
             />
           );
         })
@@ -132,12 +137,17 @@ function calculateWinner(squares) {
     [2, 4, 6],
   ];
 
+  let winner = null;
+  const checkedSquares = Array(9).fill(false);
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
+      winner = squares[a];
+      checkedSquares[a] = true;
+      checkedSquares[b] = true;
+      checkedSquares[c] = true;
     }
   }
 
-  return null;
+  return [winner, checkedSquares];
 }
