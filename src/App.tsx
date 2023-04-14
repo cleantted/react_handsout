@@ -6,17 +6,16 @@ const Square = (
   <button className="square" onClick={onSquareClick}>{value}</button>
 )
 
-export default function Board() {
-  const [xIsNext, setXIsNext] = useState<boolean>(true);
-  const [squares, setSquares] = useState<Array<string | null>>(Array(9).fill(null));
+const Board = (
+  { xIsNext, squares, onPlay }: { xIsNext: boolean, squares: Array<string | null>, onPlay: (squares: Array<string | null>) => void }
+) => {
   const handleClick = (i: number): void => {
     if (squares[i] || calclateWinner(squares)) {
       return;
     }
     const nextSquares = squares.slice();
     nextSquares[i] = xIsNext ? "X" : "O";
-    setSquares(nextSquares);
-    setXIsNext(!xIsNext);
+    onPlay(nextSquares);
   };
 
   const winner = calclateWinner(squares);
@@ -47,6 +46,49 @@ export default function Board() {
       </div>
     </>
   );
+}
+
+export default function Game() {
+  const [history, setHistory] = useState<Array<Array<string | null>>>([Array(9).fill(null)]);
+  const [currentMove, setCurrentMove] = useState<number>(0);
+  const xIsNext = currentMove % 2 === 0;
+  const currentSquares = history[currentMove];
+
+  const handlePlay = (nextSquares: Array<string | null>): void => {
+    const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
+    setHistory(nextHistory);
+    setCurrentMove(nextHistory.length - 1);
+  }
+
+  const jumpTo = (nextMove: number): void => {
+    setCurrentMove(nextMove);
+  }
+
+  const moves = history.map((squares: Array<string | null>, move: number) => {
+    let description: string;
+    if (move > 0) {
+      description = "Go to move #" + move;
+    } else {
+      description = "Go to game start";
+    }
+
+    return (
+      <li key={move}>
+        <button onClick={() => jumpTo(move)}>{description}</button>
+      </li>
+    );
+  });
+
+  return (
+    <div className="game">
+      <div className="game-board">
+        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
+      </div>
+      <div className="game-info">
+        <ol>{moves}</ol>
+      </div>
+    </div>
+  )
 }
 
 const calclateWinner = (squares: Array<string | null>): string | null => {
